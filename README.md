@@ -47,5 +47,5 @@ with:
   source_branch: "master"
   target: "root-project/cling"
   gist: "97321608e2aa04e2a6ecbc2b68a41a99"
-  github_token: ${{ secrets.GITHUB_TOKEN }}
+  github_token: ${{ secrets.TOKEN }}
 ```
