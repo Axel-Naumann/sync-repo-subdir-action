@@ -1,6 +1,9 @@
 # action.yml
-name: 'Sync Repo Subdir'
-description: 'Apply changes in a repository's subdir to another repository'
+name: Sync Repo Subdir
+description: Apply changes from one repository to another, possibly involving subdirs.
+branding:
+  icon: 'git-merge'
+  color: 'green'
 inputs:
   source:  # project-name/repo-name/subdir-name
     description: 'source repository (and optionally directory)'
