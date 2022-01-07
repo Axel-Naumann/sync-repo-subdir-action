@@ -98,9 +98,9 @@ print(f"::info::Source:: repo {source_repo} dir {source_dir if source_dir else '
 print(f"::info::Target:: repo {target_repo} dir {target_dir if target_dir else '{NONE}'} branch {target_branch if target_branch else '{NONE}'}")
 
 # source = g.get_repo(source_repo)
-target = g.get_repo(target_repo)
-if not target.permissions.push:
-  error_out('config', f"Github token as provided to action does not have permission to push to {target_repo}")
+#target = g.get_repo(target_repo)
+#if not target.permissions.push:
+#  error_out('config', f"Github token as provided to action does not have permission to push to {target_repo}")
 
 sha_file = get_most_recent_sync_gistfile(g, os.environ["INPUT_GIST"])
 
