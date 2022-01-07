@@ -1,0 +1,25 @@
+# action.yml
+name: 'Sync Repo Subdir'
+description: 'Apply changes in a repository's subdir to another repository'
+inputs:
+  source:  # project-name/repo-name/subdir-name
+    description: 'source repository (and optionally directory)'
+    required: true
+  source_branch: 
+    description: 'Name of the source repo's branch'
+    required: true
+  target:  # project-name/repo-name/subdir-name
+    description: 'target repository (and optionally directory)'
+    required: true
+  target_branch: 
+    description: 'Name of the target repo's branch'
+  gist: # gist ID
+    description: 'ID of the gist storing the most recent sync commit'
+  github_token:
+    required: true
+    description: 'Github authentication token, must have permission to push to target and create / update gist'
+  testing:
+    description: 'INTERNAL for testing purposes: rewrites history!'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

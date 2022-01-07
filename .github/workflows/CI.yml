@@ -1,0 +1,32 @@
+name: CI
+
+on: pull_request
+
+jobs:
+  test-default-branch:
+    uses: Axel-Naumann/sync-repo-subdir-action@${{ github.ref }}
+    with:
+      source: "Axel-Naumann/sync-repo-subdir-action-test-source"
+      source_branch: "main"
+      target: "Axel-Naumann/sync-repo-subdir-action-test-target"
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      testing: true
+  test-same-level:
+    uses: Axel-Naumann/sync-repo-subdir-action@${{ github.ref }}
+    with:
+      source: "Axel-Naumann/sync-repo-subdir-action-test-source"
+      source_branch: "main"
+      target: "Axel-Naumann/sync-repo-subdir-action-test-target"
+      target_branch: "same-level"
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      testing: true
+  test-subdir-level:
+    uses: Axel-Naumann/sync-repo-subdir-action@${{ github.ref }}
+    with:
+      source: "Axel-Naumann/sync-repo-subdir-action-test-source/subdir"
+      source_branch: "main"
+      target: "Axel-Naumann/sync-repo-subdir-action-test-target"
+      target_branch: "subdir-level"
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      testing: true
+    
