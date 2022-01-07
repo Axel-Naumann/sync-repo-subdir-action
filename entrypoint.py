@@ -7,6 +7,8 @@ testing = os.environ["INPUT_TESTING"]
 if testing:
   print("::info::Testing mode is on; will reset repositories!")
 
+def rewind_repos():
+  pass
 
 def error_out(kind, msg):
   print(f"::error::{kind}::{msg}")
@@ -81,7 +83,7 @@ def set_most_recent_sync_sha_and_date_in_gistfile(sha_file, tag, sha):
 print("::group::Config sanity checks")
 
 github_actor = os.environ["GITHUB_ACTOR"] 
-github_token = os.environ["INPUT_GITHUB_TOKEN"]
+github_token = os.environ["GITHUB_TOKEN"]
 g = Github(github_token)
 
 source_repo, source_dir = split_repo_and_dir(os.environ["INPUT_SOURCE"])
