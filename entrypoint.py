@@ -25,7 +25,7 @@ def split_repo_and_dir(repo):
   The second part might be the empty string if no subdir-name was given.
   """
   parts = repo.split('/')
-  if len(parts) == 1:
+  if len(parts) == 2:
     return [repo, '']
   return ['/'.join(repo[0:2]), '/'.join(repo[2:])]
 
