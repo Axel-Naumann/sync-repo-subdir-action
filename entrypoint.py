@@ -88,10 +88,12 @@ source_repo, source_dir = split_repo_and_dir(os.environ["INPUT_SOURCE"])
 target_repo, target_dir = split_repo_and_dir(os.environ["INPUT_TARGET"])
 
 source_branch = os.environ["INPUT_SOURCE_BRANCH"]
-
 target_branch = source_branch
 if "INPUT_TARGET_BRANCH" in os.environ:
   target_branch = os.environ["INPUT_TARGET_BRANCH"]
+
+print(f"::info::Source:: repo {source_repo} dir {source_dir if source_dir else '{NONE}'} branch {source_branch if source_branch else '{NONE}'}")
+print(f"::info::Target:: repo {target_repo} dir {target_dir if target_dir else '{NONE}'} branch {target_branch if target_branch else '{NONE}'}")
 
 # source = g.get_repo(source_repo)
 target = g.get_repo(target_repo)
