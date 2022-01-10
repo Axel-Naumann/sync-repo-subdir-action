@@ -1,21 +1,24 @@
 #/usr/bin/python3
 
 import os, sys, subprocess
-from github import Github
+import github
 
 testing = os.environ["INPUT_TESTING"] 
 if testing:
   print("::info::Testing mode is on; will reset repositories!")
 
+################################################################################
 def rewind_repos():
   pass
 
+################################################################################
 def error_out(kind, msg):
   print(f"::error::{kind}::{msg}")
   if testing:
     rewind_repos()
   sys.exit(1)
 
+################################################################################
 def split_repo_and_dir(repo):
   """
   Split the input string
@@ -31,8 +34,8 @@ def split_repo_and_dir(repo):
     return [repo, '']
   return ['/'.join(repo[0:2]), '/'.join(repo[2:])]
 
-
-def get_most_recent_sync_gistfile(github, gist_id):
+################################################################################
+def get_gist_and_most_recent_sync_gistfile(github, gist_id):
   """
   Return the GistFile named `srsa-last-sync-sha.txt` in gist_id.
   error_out if the gist cannot be found.
@@ -42,10 +45,11 @@ def get_most_recent_sync_gistfile(github, gist_id):
   if not gist:
     error_out("config", f"Gist with id {gist_id} cannot be found!")
   try:
-    return gist.files['srsa-last-sync-sha.txt']
+    return [gist, gist.files['srsa-last-sync-sha.txt']]
   except:
-    return None
+    return [gist, None]
 
+################################################################################
 def get_most_recent_sync_sha_and_date_in_gistfile(sha_file, tag):
   """
   Return the commit sha of the most recent successful sync, as stored in a
@@ -59,7 +63,8 @@ def get_most_recent_sync_sha_and_date_in_gistfile(sha_file, tag):
   sha_and_date = sha_line[len(tag):]
   return sha_and_date.split(' *DATE ')
 
-def set_most_recent_sync_sha_and_date_in_gistfile(sha_file, tag, sha):
+################################################################################
+def set_most_recent_sync_sha_and_date_in_gistfile(gist, sha_file, tag, sha):
   """
   Store the commit sha of the most recent successful sync and now's daye in a
   GistFile `sha_file`. The line starts with `tag`.
@@ -68,15 +73,21 @@ def set_most_recent_sync_sha_and_date_in_gistfile(sha_file, tag, sha):
   from email import utils
   nowdt = datetime.datetime.now()
   datestr = utils.format_datetime(nowdt)
-  lines = sha_file.content.splitlines
-  updatedlines = []
-  replaced = False
-  for line in lines:
-    if not line.startswith(tag):
-      updatedlines.append(line)
-  updatedlines.insert(0, tag + sha + ' *DATE ' + datestr)
-  sha_file.content = '\n'.join(updatedlines)
-
+  if sha_file:
+    lines = sha_file.content.splitlines
+    updatedlines = []
+    replaced = False
+    for line in lines:
+      if not line.startswith(tag):
+        updatedlines.append(line)
+    updatedlines.insert(0, tag + sha + ' *DATE ' + datestr)
+    sha_file.content = '\n'.join(updatedlines)
+  else:
+    gist.files['srsa-last-sync-sha.txt'].content = tag + sha + ' *DATE ' + datestr
+  editFiles = {}
+  for file in gist.files:
+    editFiles[file.filename] = github.InputFileContent(content=file.content)
+  gist.edit(description=f"Updated by sync-repo-subdir-action on {datestr}", files=editFiles)
 
 
 ################################################################################
@@ -102,7 +113,7 @@ print(f"::info::Target:: repo {target_repo} dir {target_dir if target_dir else '
 #if not target.permissions.push:
 #  error_out('config', f"Github token as provided to action does not have permission to push to {target_repo}")
 
-sha_file = get_most_recent_sync_gistfile(g, os.environ["INPUT_GIST"])
+gist, sha_file = get_gist_and_most_recent_sync_gistfile(g, os.environ["INPUT_GIST"])
 
 print("::endgroup::")
 
@@ -221,6 +232,6 @@ print("::endgroup::")
 ################################################################################
 print("::group::Update most recent successful sync commit")
 
-set_most_recent_sync_sha_and_date_in_gistfile(sha_file, tag, source_now_sha)
+set_most_recent_sync_sha_and_date_in_gistfile(gist, sha_file, tag, source_now_sha)
 
 print("::endgroup::")
