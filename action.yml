@@ -18,9 +18,10 @@ inputs:
     description: Name of the target repo branch
   gist: # gist ID
     description: ID of the gist storing the most recent sync commit
-  github_token:
     required: true
+  github_token:
     description: Github authentication token, must have permission to push to target and create / update gist
+    required: true
   testing:
     description: 'INTERNAL for testing purposes: rewrites history!'
 runs:
