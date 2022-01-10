@@ -95,7 +95,7 @@ print("::group::Config sanity checks")
 
 github_actor = os.environ["GITHUB_ACTOR"] 
 github_token = os.environ["INPUT_GITHUB_TOKEN"]
-g = Github(github_token)
+g = github.Github(github_token)
 
 source_repo, source_dir = split_repo_and_dir(os.environ["INPUT_SOURCE"])
 target_repo, target_dir = split_repo_and_dir(os.environ["INPUT_TARGET"])
