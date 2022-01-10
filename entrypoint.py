@@ -64,32 +64,40 @@ def get_most_recent_sync_sha_and_date_in_gistfile(sha_file, tag):
   return sha_and_date.split(' *DATE ')
 
 ################################################################################
+def replace_most_recent_sync_sha_and_date_in_gistfile_content(sha_file, tag, sha):
+  import datetime
+  from email import utils
+  nowdt = datetime.datetime.now()
+  datestr = utils.format_datetime(nowdt)
+  lines = []
+  if sha_file:
+    lines = sha_file.content.splitlines
+  updatedlines = []
+  for line in lines:
+    if not line.startswith(tag):
+      updatedlines.append(line)
+  updatedlines.insert(0, tag + sha + ' *DATE ' + datestr)
+  return '\n'.join(updatedlines)
+
+################################################################################
 def set_most_recent_sync_sha_and_date_in_gistfile(gist, sha_file, tag, sha):
   """
   Store the commit sha of the most recent successful sync and now's daye in a
   GistFile `sha_file`. The line starts with `tag`.
   """
-  import datetime
-  from email import utils
-  nowdt = datetime.datetime.now()
-  datestr = utils.format_datetime(nowdt)
-  if sha_file:
-    lines = sha_file.content.splitlines
-    updatedlines = []
-    replaced = False
-    for line in lines:
-      if not line.startswith(tag):
-        updatedlines.append(line)
-    updatedlines.insert(0, tag + sha + ' *DATE ' + datestr)
-    sha_file.content = '\n'.join(updatedlines)
-  else:
-    gist.files['srsa-last-sync-sha.txt'].content = tag + sha + ' *DATE ' + datestr
   editFiles = {}
   for file in gist.files:
-    editFiles[file.filename] = github.InputFileContent(content=file.content)
-  gist.edit(description=f"Updated by sync-repo-subdir-action on {datestr}", files=editFiles)
+    if file.filename != 'srsa-last-sync-sha.txt':
+      editFiles[file.filename] = github.InputFileContent(content=file.content)
+
+  editContent = replace_most_recent_sync_sha_and_date_in_gistfile_content(sha_file, tag, sha)
+  editFiles['srsa-last-sync-sha.txt'] = github.InputFileContent(content=editContent)
+
+  from datetime import datetime
+  gist.edit(description=f"Updated by sync-repo-subdir-action on {str(datetime.now())}", files=editFiles)
 
 
+################################################################################
 ################################################################################
 print("::group::Config sanity checks")
 
