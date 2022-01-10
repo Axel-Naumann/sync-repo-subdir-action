@@ -86,9 +86,9 @@ def set_most_recent_sync_sha_and_date_in_gistfile(gist, sha_file, tag, sha):
   GistFile `sha_file`. The line starts with `tag`.
   """
   editFiles = {}
-  for file in gist.files:
-    if file.filename != 'srsa-last-sync-sha.txt':
-      editFiles[file.filename] = github.InputFileContent(content=file.content)
+  for filename in gist.files:
+    if filename != 'srsa-last-sync-sha.txt':
+      editFiles[filename] = github.InputFileContent(content=gist.files[filename].content)
 
   editContent = replace_most_recent_sync_sha_and_date_in_gistfile_content(sha_file, tag, sha)
   editFiles['srsa-last-sync-sha.txt'] = github.InputFileContent(content=editContent)
