@@ -155,7 +155,7 @@ subprocess.run(["ls"], cwd="source", check=True)
 
 proc_res = subprocess.run(["git", "log", "-1", '--format="format:%H"', "HEAD"], \
   cwd="source", check=True, capture_output=True)
-source_now_sha = proc_res.stdout.strip()
+source_now_sha = proc_res.stdout.decode('utf-8').strip()
 print(f"::info::newest source commit: {source_now_sha}")
 
 print("::endgroup::")
