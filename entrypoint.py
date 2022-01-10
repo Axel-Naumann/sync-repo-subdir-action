@@ -153,8 +153,12 @@ print("::endgroup::")
 ################################################################################
 print("::group::Getting source patch")
 
-subprocess.run(f"git format-patch --no-stat --find-renames --find-copies --stdout --keep-subject {prev_sha}.. -- {source_dir} > ../patch", \
-    cwd="source", shell=True, check=True)
+cmd = f"git format-patch --no-stat --find-renames --find-copies --stdout --keep-subject "
+if prev_sha:
+  cmd += f"{prev_sha}.. "
+cmd += f"-- {source_dir} > ../patch"
+subprocess.run(cmd, cwd="source", shell=True, check=True)
+
 have_patch = True
 if os.path.getsize('patch') < 10:
   print("::info::no patch to apply")
