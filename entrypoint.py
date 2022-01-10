@@ -129,7 +129,7 @@ print("::group::Checking out source repo")
 
 os.mkdir("source")
 subprocess.run(["git", "init"], cwd="source", check=True)
-subprocess.run(["git", "remote", "add", "origin", f"git@github.com:{source_repo}"], cwd="source", check=True)
+subprocess.run(["git", "remote", "add", "origin",  f"https://{github_actor}:{github_token}@github.com/{source_repo}"], cwd="source", check=True)
 args = ["git", "fetch", "origin", source_branch]
 if prev_date:
   args.insert(2, f"--shallow-since={prev_date}")
@@ -173,7 +173,7 @@ if have_patch:
   os.mkdir("target")
   subprocess.run(["git", "init"], cwd="target", check=True)
   subprocess.run(["git", "remote", "add", "origin", \
-    f"https://{github_actor}:{github_token}@github.com:{target_repo}"], cwd="target", check=True)
+    f"https://{github_actor}:{github_token}@github.com/{target_repo}"], cwd="target", check=True)
   subprocess.run(["git", "pull", "--depth=1", "origin", target_branch], cwd="target", check=True)
 
   print("::info::target directory after checkout:")
