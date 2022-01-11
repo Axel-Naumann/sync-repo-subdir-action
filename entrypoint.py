@@ -71,7 +71,7 @@ def replace_most_recent_sync_sha_and_date_in_gistfile_content(sha_file, tag, sha
   datestr = utils.format_datetime(nowdt)
   lines = []
   if sha_file:
-    lines = sha_file.content.splitlines
+    lines = sha_file.content.splitlines()
   updatedlines = []
   for line in lines:
     if not line.startswith(tag):
