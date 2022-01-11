@@ -152,7 +152,7 @@ except:
   subprocess.call(["ls", "-s", "source"])
 
 subprocess.run(["git", "init"], cwd="source", check=True)
-subprocess.run(["git", "remote", "add", "origin",  f"https://{github_actor}:{github_token}@github.com/{source_repo}"], cwd="source", check=True)
+subprocess.run(["git", "remote", "set-url", "origin",  f"https://{github_actor}:{github_token}@github.com/{source_repo}"], cwd="source", check=True)
 args = ["git", "fetch", "origin", source_branch]
 if prev_date:
   args.insert(2, f"--shallow-since={prev_date}")
@@ -199,7 +199,7 @@ print("::group::Checking out target repo")
 if have_patch:
   os.mkdir("target")
   subprocess.run(["git", "init"], cwd="target", check=True)
-  subprocess.run(["git", "remote", "add", "origin", \
+  subprocess.run(["git", "remote", "set-url", "origin", \
     f"https://{github_actor}:{github_token}@github.com/{target_repo}"], cwd="target", check=True)
   subprocess.run(["git", "pull", "--depth=1", "origin", target_branch], cwd="target", check=True)
 
