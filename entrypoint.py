@@ -146,7 +146,11 @@ print("::endgroup::")
 ################################################################################
 print("::group::Checking out source repo")
 
-os.mkdir("source")
+try:
+  os.mkdir("source")
+except:
+  subprocess.call(["ls", "-s", "source"])
+
 subprocess.run(["git", "init"], cwd="source", check=True)
 subprocess.run(["git", "remote", "add", "origin",  f"https://{github_actor}:{github_token}@github.com/{source_repo}"], cwd="source", check=True)
 args = ["git", "fetch", "origin", source_branch]
