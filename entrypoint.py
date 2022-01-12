@@ -2,6 +2,7 @@
 
 import os, sys, subprocess
 import github
+import shutil
 
 testing = os.environ["INPUT_TESTING"] 
 if testing:
@@ -149,7 +150,7 @@ print("::group::Checking out source repo")
 try:
   os.mkdir("source")
 except:
-  os.remove("source")
+  shutil.rmtree("source")
   os.mkdir("source")
 
 subprocess.run(["git", "init"], cwd="source", check=True)
