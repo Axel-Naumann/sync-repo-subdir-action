@@ -33,7 +33,7 @@ def split_repo_and_dir(repo):
   parts = repo.split('/')
   if len(parts) == 2:
     return [repo, '']
-  return ['/'.join(repo[0:2]), '/'.join(repo[2:])]
+  return ['/'.join(parts[0:2]), '/'.join(parts[2:])]
 
 ################################################################################
 def get_gist_and_most_recent_sync_gistfile(github, gist_id):
