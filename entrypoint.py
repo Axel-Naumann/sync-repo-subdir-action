@@ -131,9 +131,9 @@ print("::endgroup::")
 print("::group::Determining previous sync commit")
 
 tag = f"*SOURCE {os.environ['INPUT_SOURCE']} " \
-  + f"*SOURCE_BRANCH {source_branch} " \
+  + f"*SOURCE_BRANCH <{source_branch}> " \
   + f"*TARGET {os.environ['INPUT_TARGET']}" \
-  + f"*TARGET_BRANCH {target_branch} "
+  + f"*TARGET_BRANCH <{target_branch}> "
 [prev_sha, prev_date] = get_most_recent_sync_sha_and_date_in_gistfile(sha_file, tag)
 
 if prev_sha:
