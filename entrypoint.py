@@ -20,6 +20,22 @@ def error_out(kind, msg):
   sys.exit(1)
 
 ################################################################################
+def run(cmd, shell=False, cwd=None, stdout=None, stderr=None, check=True, \
+  capture_output=True):
+  if type(cmd) == str:
+    print(f"::debug::Running {cmd}")
+  else:
+    print(f"::debug::Running {' '.join(cmd)}")
+
+  if capture_output:
+    return subprocess.run(cmd, cwd=cwd, check=check, capture_output=capture_output)
+  p = subprocess.run(cmd, cwd=cwd, check=check, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  out, err = p.communicate()
+  print(f"::debug::  stdout:\n{p.stdout}")
+  print(f"::debug::  stderr:\n{p.stderr}")
+  return p
+
+################################################################################
 def split_repo_and_dir(repo):
   """
   Split the input string
@@ -153,21 +169,21 @@ except:
   shutil.rmtree("source")
   os.mkdir("source")
 
-subprocess.run(["git", "init"], cwd="source", check=True)
-subprocess.run(["git", "remote", "add", "origin",  f"https://{github_actor}:{github_token}@github.com/{source_repo}"], cwd="source", check=True)
+run(["git", "init"], cwd="source")
+run(["git", "remote", "add", "origin",  f"https://{github_actor}:{github_token}@github.com/{source_repo}"], cwd="source", check=True)
 args = ["git", "fetch", "origin", source_branch]
 if prev_date:
   args.insert(2, f"--shallow-since={prev_date}")
-subprocess.run(args, cwd="source", check=True)
-subprocess.run(["git", "config", "core.sparseCheckout", "true"], cwd="source", check=True)
+run(args, cwd="source", check=True)
+run(["git", "config", "core.sparseCheckout", "true"], cwd="source", check=True)
 with open('source/.git/info/sparse-checkout', 'w') as f:
     f.write(source_dir)
-subprocess.run(["git", "pull", "origin", source_branch], cwd="source", check=True)
+run(["git", "pull", "origin", source_branch], cwd="source", check=True)
 
 print("::info::source directory after checkout:")
-subprocess.run(["ls"], cwd="source", check=True)
+run(["ls"], cwd="source", check=True)
 
-proc_res = subprocess.run(["git", "log", "-1", "--format=%H", "HEAD"], \
+proc_res = run(["git", "log", "-1", "--format=%H", "HEAD"], \
   cwd="source", check=True, capture_output=True)
 source_now_sha = proc_res.stdout.decode('utf-8').strip()
 print(f"::info::newest source commit: {source_now_sha}")
@@ -182,7 +198,7 @@ cmd = f"git format-patch --no-stat --find-renames --find-copies --stdout --keep-
 if prev_sha:
   cmd += f"{prev_sha}.. "
 cmd += f"-- {source_dir} > ../patch"
-subprocess.run(cmd, cwd="source", shell=True, check=True)
+run(cmd, cwd="source", shell=True, check=True)
 
 have_patch = True
 if os.path.getsize('patch') < 10:
@@ -200,13 +216,13 @@ print("::group::Checking out target repo")
 
 if have_patch:
   os.mkdir("target")
-  subprocess.run(["git", "init"], cwd="target", check=True)
-  subprocess.run(["git", "remote", "add", "origin", \
+  run(["git", "init"], cwd="target", check=True)
+  run(["git", "remote", "add", "origin", \
     f"https://{github_actor}:{github_token}@github.com/{target_repo}"], cwd="target", check=True)
-  subprocess.run(["git", "pull", "--depth=1", "origin", target_branch], cwd="target", check=True)
+  run(["git", "pull", "--depth=1", "origin", target_branch], cwd="target", check=True)
 
   print("::info::target directory after checkout:")
-  subprocess.run(["ls"], cwd="target", check=True)
+  run(["ls"], cwd="target", check=True)
 else:
   print("::info::skipped (no patch)")
 
@@ -224,7 +240,7 @@ if have_patch:
   args = ["git", "am", f"-p{dirignore}", "../patch"]
   if target_dir:
     args.append(f"--directory={target_dir}")
-  subprocess.run(args, cwd="target", check=True)
+  run(args, cwd="target", check=True)
 else:
   print("::info::skipped (no patch)")
 
@@ -235,7 +251,7 @@ print("::endgroup::")
 print("::group::Pushing to target")
 
 if have_patch:
-  subprocess.run(["git", "push", "origin", f"HEAD:{target_branch}"], cwd="target", check=True)
+  run(["git", "push", "origin", f"HEAD:{target_branch}"], cwd="target", check=True)
 else:
   print("::info::skipped (no patch)")
 
