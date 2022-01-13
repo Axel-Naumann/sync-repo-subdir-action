@@ -20,16 +20,15 @@ def error_out(kind, msg):
   sys.exit(1)
 
 ################################################################################
-def run(cmd, shell=False, cwd=None, stdout=None, stderr=None, check=True, \
-  capture_output=True):
+def run(cmd, shell=False, cwd=None, capture_output=True):
   if type(cmd) == str:
     print(f"::debug::Running {cmd}")
   else:
     print(f"::debug::Running {' '.join(cmd)}")
 
   if capture_output:
-    return subprocess.run(cmd, cwd=cwd, check=check, capture_output=capture_output)
-  p = subprocess.run(cmd, cwd=cwd, check=check, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return subprocess.run(cmd, check=True, cwd=cwd, shell=shell, capture_output=capture_output)
+  p = subprocess.run(cmd, check=True, cwd=cwd, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   out, err = p.communicate()
   print(f"::debug::  stdout:\n{p.stdout}")
   print(f"::debug::  stderr:\n{p.stderr}")
@@ -170,21 +169,21 @@ except:
   os.mkdir("source")
 
 run(["git", "init"], cwd="source")
-run(["git", "remote", "add", "origin",  f"https://{github_actor}:{github_token}@github.com/{source_repo}"], cwd="source", check=True)
+run(["git", "remote", "add", "origin",  f"https://{github_actor}:{github_token}@github.com/{source_repo}"], cwd="source")
 args = ["git", "fetch", "origin", source_branch]
 if prev_date:
   args.insert(2, f"--shallow-since={prev_date}")
-run(args, cwd="source", check=True)
-run(["git", "config", "core.sparseCheckout", "true"], cwd="source", check=True)
+run(args, cwd="source")
+run(["git", "config", "core.sparseCheckout", "true"], cwd="source")
 with open('source/.git/info/sparse-checkout', 'w') as f:
     f.write(source_dir)
-run(["git", "pull", "origin", source_branch], cwd="source", check=True)
+run(["git", "pull", "origin", source_branch], cwd="source")
 
 print("::info::source directory after checkout:")
-run(["ls"], cwd="source", check=True)
+run(["ls"], cwd="source")
 
 proc_res = run(["git", "log", "-1", "--format=%H", "HEAD"], \
-  cwd="source", check=True, capture_output=True)
+  cwd="source", capture_output=True)
 source_now_sha = proc_res.stdout.decode('utf-8').strip()
 print(f"::info::newest source commit: {source_now_sha}")
 
@@ -198,7 +197,7 @@ cmd = f"git format-patch --no-stat --find-renames --find-copies --stdout --keep-
 if prev_sha:
   cmd += f"{prev_sha}.. "
 cmd += f"-- {source_dir} > ../patch"
-run(cmd, cwd="source", shell=True, check=True)
+run(cmd, cwd="source", shell=True)
 
 have_patch = True
 if os.path.getsize('patch') < 10:
@@ -216,13 +215,13 @@ print("::group::Checking out target repo")
 
 if have_patch:
   os.mkdir("target")
-  run(["git", "init"], cwd="target", check=True)
+  run(["git", "init"], cwd="target")
   run(["git", "remote", "add", "origin", \
-    f"https://{github_actor}:{github_token}@github.com/{target_repo}"], cwd="target", check=True)
-  run(["git", "pull", "--depth=1", "origin", target_branch], cwd="target", check=True)
+    f"https://{github_actor}:{github_token}@github.com/{target_repo}"], cwd="target")
+  run(["git", "pull", "--depth=1", "origin", target_branch], cwd="target")
 
   print("::info::target directory after checkout:")
-  run(["ls"], cwd="target", check=True)
+  run(["ls"], cwd="target")
 else:
   print("::info::skipped (no patch)")
 
@@ -240,7 +239,7 @@ if have_patch:
   args = ["git", "am", f"-p{dirignore}", "../patch"]
   if target_dir:
     args.append(f"--directory={target_dir}")
-  run(args, cwd="target", check=True)
+  run(args, cwd="target")
 else:
   print("::info::skipped (no patch)")
 
@@ -251,7 +250,7 @@ print("::endgroup::")
 print("::group::Pushing to target")
 
 if have_patch:
-  run(["git", "push", "origin", f"HEAD:{target_branch}"], cwd="target", check=True)
+  run(["git", "push", "origin", f"HEAD:{target_branch}"], cwd="target")
 else:
   print("::info::skipped (no patch)")
 
